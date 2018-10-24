@@ -96,6 +96,7 @@
             <scope>provided</scope>
         </dependency>
 
+<!--
     <dependency>
         <groupId>groupid</groupId>
         <artifactId>artifiactId</artifactId>
@@ -110,6 +111,7 @@
         <scope>system</scope>
         <systemPath>${java.home}/lib/tools.jar</systemPath>
     </dependency>
+-->
     </dependencies>
 
     <build>
