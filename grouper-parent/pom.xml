@@ -42,7 +42,9 @@
         <module>../grouper-misc/grouperActivemq</module>
         <module>../grouper-misc/grouper-messaging-rabbitmq</module>
         <module>../grouper-misc/grouper-pspng</module>
+<!--
         <module>../grouper-misc/grouper-messaging-kafka</module>
+-->
     </modules>
 
     <properties>
