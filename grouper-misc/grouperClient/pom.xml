@@ -140,7 +140,7 @@
                 <compilerArgs>
                     <arg>-XDignore.symbol.file</arg>
                 </compilerArgs>
-                <fork>true</fork>
+                <fork>false</fork>
             </configuration>
             </plugin>
             <plugin>
