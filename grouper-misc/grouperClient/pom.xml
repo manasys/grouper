@@ -95,6 +95,13 @@
             <artifactId>mailapi</artifactId>
             <scope>provided</scope>
         </dependency>
+    <dependency>
+        <groupId>groupid</groupId>
+        <artifactId>artifiactId</artifactId>
+        <version>1.0</version>
+        <scope>system</scope>
+        <systemPath>${java.home}/lib/rt.jar</systemPath>
+    </dependency>
     </dependencies>
 
     <build>
@@ -119,6 +126,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+<configuration>
+                <source>1.7</source>
+                <target>1.7</target>
+                <compilerArgs>
+                    <arg>-XDignore.symbol.file</arg>
+                </compilerArgs>
+                <fork>true</fork>
+            </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
