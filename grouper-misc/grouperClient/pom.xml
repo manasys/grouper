@@ -95,12 +95,20 @@
             <artifactId>mailapi</artifactId>
             <scope>provided</scope>
         </dependency>
+
     <dependency>
         <groupId>groupid</groupId>
         <artifactId>artifiactId</artifactId>
         <version>1.0</version>
         <scope>system</scope>
         <systemPath>${java.home}/lib/rt.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>groupid</groupId>
+        <artifactId>artifiactId2</artifactId>
+        <version>1.0</version>
+        <scope>system</scope>
+        <systemPath>${java.home}/lib/tools.jar</systemPath>
     </dependency>
     </dependencies>
 
