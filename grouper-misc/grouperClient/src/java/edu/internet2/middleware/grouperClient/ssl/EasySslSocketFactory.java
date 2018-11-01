@@ -15,8 +15,6 @@
  */
 package edu.internet2.middleware.grouperClient.ssl;
 
-
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -29,156 +27,142 @@ import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import com.sun.net.ssl.SSLContext;
-import com.sun.net.ssl.TrustManager;
-import com.sun.net.ssl.TrustManagerFactory;
-import com.sun.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.ConnectTimeoutException;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.HttpConnectionParams;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 
+/**
+ * Apache code for SSL that doesnt fail with self-signed certs
+ * 
+ * @author mchyzer
+ */
+public class EasySslSocketFactory implements SecureProtocolSocketFactory {
 
-  /**
-   * Apache code for SSL that doesnt fail with self-signed certs
-   * 
-   * @author mchyzer
-   */
-  public class EasySslSocketFactory implements SecureProtocolSocketFactory {
+	/**
+	 *  
+	 */
+	public EasySslSocketFactory() {
+		super();
+	}
 
-    /**
-     *  
-     */
-    public EasySslSocketFactory() {
-      super();
-    }
+	/**
+	 * <p>
+	 * EasySSLProtocolSocketFactory can be used to creats SSL {@link Socket}s that
+	 * accept self-signed certificates.
+	 * </p>
+	 * 
+	 * <p>
+	 * This socket factory SHOULD NOT be used for productive systems due to security
+	 * reasons, unless it is a concious decision and you are perfectly aware of
+	 * security implications of accepting self-signed certificates
+	 * </p>
+	 * 
+	 * @return SSLSocketFactory
+	 */
+	private static SSLSocketFactory getEasySSLSocketFactory() {
+		SSLContext context = null;
 
-    /**
-     * <p>
-     * EasySSLProtocolSocketFactory can be used to creats SSL {@link Socket}s
-     * that accept self-signed certificates.
-     * </p>
-     * 
-     * <p>
-     * This socket factory SHOULD NOT be used for productive systems due to
-     * security reasons, unless it is a concious decision and you are perfectly
-     * aware of security implications of accepting self-signed certificates
-     * </p>
-     * @return SSLSocketFactory
-     */
-    private static SSLSocketFactory getEasySSLSocketFactory() {
-      SSLContext context = null;
+		try {
+			context = SSLContext.getInstance("SSL");
+			context.init(null, new TrustManager[] { new EasyX509TrustManager(null) }, null);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
-      try {
-        context = SSLContext.getInstance("SSL");
-        context.init(null, new TrustManager[] { new EasyX509TrustManager(null) }, null);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+		return context.getSocketFactory();
+	}
 
-      return context.getSocketFactory();
-    }
+	/**
+	 * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int,java.net.InetAddress,int)
+	 */
+	public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort)
+			throws IOException, UnknownHostException {
+		Socket socket = getEasySSLSocketFactory().createSocket(host, port, clientHost, clientPort);
 
-    /**
-     * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int,java.net.InetAddress,int)
-     */
-    public Socket createSocket(String host, int port, InetAddress clientHost,
-        int clientPort) throws IOException, UnknownHostException {
-      Socket socket = getEasySSLSocketFactory().createSocket(host, port, clientHost,
-          clientPort);
+		return socket;
+	}
 
-      return socket;
-    }
+	/**
+	 * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int)
+	 */
+	public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+		return getEasySSLSocketFactory().createSocket(host, port);
+	}
 
-    /**
-     * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int)
-     */
-    public Socket createSocket(String host, int port) throws IOException,
-        UnknownHostException {
-      return getEasySSLSocketFactory().createSocket(host, port);
-    }
+	/**
+	 * @see SecureProtocolSocketFactory#createSocket(java.net.Socket,java.lang.String,int,boolean)
+	 */
+	public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
+			throws IOException, UnknownHostException {
+		return getEasySSLSocketFactory().createSocket(socket, host, port, autoClose);
+	}
 
-    /**
-     * @see SecureProtocolSocketFactory#createSocket(java.net.Socket,java.lang.String,int,boolean)
-     */
-    public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
-        throws IOException, UnknownHostException {
-      return getEasySSLSocketFactory().createSocket(socket, host, port, autoClose);
-    }
+	/**
+	 * jakarta code for SSL that doesnt fail with self-signed certs
+	 * 
+	 * @author mchyzer
+	 */
+	public static class EasyX509TrustManager implements X509TrustManager {
 
-    /**
-     * jakarta code for SSL that doesnt fail with self-signed certs
-     * 
-     * @author mchyzer
-     */
-    public static class EasyX509TrustManager implements X509TrustManager {
+		/**
+		 * Field standardTrustManager.
+		 */
+		private X509TrustManager standardTrustManager = null;
 
-      /**
-       * Field standardTrustManager.
-       */
-      private X509TrustManager standardTrustManager = null;
+		/**
+		 * Constructor for EasyX509TrustManager.
+		 * 
+		 * @param keystore KeyStore
+		 * @throws NoSuchAlgorithmException
+		 * @throws KeyStoreException
+		 */
+		public EasyX509TrustManager(KeyStore keystore) throws NoSuchAlgorithmException, KeyStoreException {
+			super();
 
-      /**
-       * Constructor for EasyX509TrustManager.
-       * @param keystore KeyStore
-       * @throws NoSuchAlgorithmException
-       * @throws KeyStoreException
-       */
-      public EasyX509TrustManager(KeyStore keystore) throws NoSuchAlgorithmException,
-          KeyStoreException {
-        super();
+			TrustManagerFactory factory = TrustManagerFactory.getInstance("SunX509");
+			factory.init(keystore);
 
-        TrustManagerFactory factory = TrustManagerFactory.getInstance("SunX509");
-        factory.init(keystore);
+			TrustManager[] trustmanagers = factory.getTrustManagers();
 
-        TrustManager[] trustmanagers = factory.getTrustManagers();
+			if (trustmanagers.length == 0) {
+				throw new NoSuchAlgorithmException("SunX509 trust manager not supported");
+			}
 
-        if (trustmanagers.length == 0) {
-          throw new NoSuchAlgorithmException("SunX509 trust manager not supported");
-        }
+			this.standardTrustManager = (X509TrustManager) trustmanagers[0];
+		}
 
-        this.standardTrustManager = (X509TrustManager) trustmanagers[0];
-      }
+		/**
+		 * @see com.sun.net.ssl.X509TrustManager#getAcceptedIssuers()
+		 */
+		public X509Certificate[] getAcceptedIssuers() {
+			return this.standardTrustManager.getAcceptedIssuers();
+		}
 
-      /**
-       * @see com.sun.net.ssl.X509TrustManager#isClientTrusted(X509Certificate[])
-       */
-      public boolean isClientTrusted(X509Certificate[] certificates) {
-        return this.standardTrustManager.isClientTrusted(certificates);
-      }
+		@Override
+		public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			this.standardTrustManager.checkClientTrusted(chain, authType);
+		}
 
-      /**
-       * @see com.sun.net.ssl.X509TrustManager#isServerTrusted(X509Certificate[])
-       */
-      public boolean isServerTrusted(X509Certificate[] certificates) {
-        if ((certificates != null) && (certificates.length == 1)) {
-          X509Certificate certificate = certificates[0];
+		@Override
+		public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			this.standardTrustManager.checkClientTrusted(chain, authType);
+		}
+	}
 
-          try {
-            certificate.checkValidity();
-          } catch (CertificateException e) {
-            return false;
-          }
+	/**
+	 * @see org.apache.commons.httpclient.protocol.ProtocolSocketFactory#createSocket(java.lang.String,
+	 *      int, java.net.InetAddress, int,
+	 *      org.apache.commons.httpclient.params.HttpConnectionParams)
+	 */
+	public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort, HttpConnectionParams arg4)
+			throws IOException, UnknownHostException, ConnectTimeoutException {
+		Socket socket = getEasySSLSocketFactory().createSocket(host, port, clientHost, clientPort);
 
-          return true;
-        }
-        return this.standardTrustManager.isServerTrusted(certificates);
-      }
-
-      /**
-       * @see com.sun.net.ssl.X509TrustManager#getAcceptedIssuers()
-       */
-      public X509Certificate[] getAcceptedIssuers() {
-        return this.standardTrustManager.getAcceptedIssuers();
-      }
-    }
-
-    /**
-     * @see org.apache.commons.httpclient.protocol.ProtocolSocketFactory#createSocket(java.lang.String, int, java.net.InetAddress, int, org.apache.commons.httpclient.params.HttpConnectionParams)
-     */
-    public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort, HttpConnectionParams arg4) throws IOException, UnknownHostException, ConnectTimeoutException {
-      Socket socket = getEasySSLSocketFactory().createSocket(host, port, clientHost, clientPort);
-
-      return socket;
-    }
-  }
+		return socket;
+	}
+}

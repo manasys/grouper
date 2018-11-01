@@ -42,6 +42,9 @@
         <module>../grouper-misc/grouperActivemq</module>
         <module>../grouper-misc/grouper-messaging-rabbitmq</module>
         <module>../grouper-misc/grouper-pspng</module>
+<!--
+        <module>../grouper-misc/grouper-messaging-kafka</module>
+-->
     </modules>
 
     <properties>
@@ -740,6 +743,11 @@
                 <version>${opencsv.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mailapi</artifactId>
+                <version>${mail.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -800,6 +808,7 @@
                     </execution>
                 </executions>
             </plugin>
+<!--
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -842,6 +851,7 @@
                     </execution>
                 </executions>
             </plugin>
+-->
         </plugins>
 
         <pluginManagement>
